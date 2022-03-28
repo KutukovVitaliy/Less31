@@ -27,6 +27,9 @@ public:
             delete this;
         }
     }
+    int GetCount(){
+        return pCount;
+    }
 };
 
 class shared_ptr_toy{
@@ -44,6 +47,7 @@ public:
      }
      shared_ptr_toy& operator=(const shared_ptr_toy& other){
          if(this == &other) return *this;
+         if(this->pCount) this->pCount->releasePointer();
          obj = other.obj;
          pCount = other.pCount;
          if(pCount) pCount->addPointer();
@@ -57,6 +61,9 @@ public:
     }
     Toy* operator->(){
         return obj;
+    }
+    int GetPointerCount(){
+        return pCount->GetCount();
     }
 };
 
@@ -72,16 +79,24 @@ int main() {
     Toy newToy("Druzok");
     Toy* toy1 = new Toy("Ball");
     shared_ptr_toy c = make_shared_toy("Snow");
+    std::cout << " c pointer count: " << c.GetPointerCount() << std::endl;
     shared_ptr_toy d = make_shared_toy(newToy);
+    std::cout << " d pointer count: " << d.GetPointerCount() << std::endl;
     {
         shared_ptr_toy a(toy1);
         std::cout << a->GetName() << std::endl;
+        std::cout << " a pointer count: " << a.GetPointerCount() << std::endl;
         Toy toy = *c;
         std::cout << toy.GetName() << std::endl;
         {
 
             shared_ptr_toy b = a;
             std::cout << b->GetName() << std::endl;
+            std::cout << " b(= a) pointer count: " << b.GetPointerCount() << std::endl;
+            b = c;
+            std::cout << " b(= c) pointer count: " << b.GetPointerCount() << std::endl;
+            std::cout << " a pointer count: " << a.GetPointerCount() << std::endl;
+
         }
 
     }
